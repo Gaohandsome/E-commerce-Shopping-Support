@@ -1,0 +1,153 @@
+{
+  "description": "SmartVoyage 电商版多智能体小样本评估集：覆盖导购推荐、比价、下单、物流、售后、种草文案、复合意图、边界拒答。",
+  "version": "2.0",
+  "cases": [
+    {
+      "id": "recommend_headphone",
+      "category": "single_agent",
+      "query": "预算300元以内，推荐一款降噪效果好的蓝牙耳机",
+      "expected_intents": ["recommend"],
+      "expected_agents": ["RecommendationAssistant"],
+      "required_keyword_groups": [
+        ["声海", "极米"],
+        ["299", "159", "399"]
+      ],
+      "forbidden_keywords": ["暂不支持", "处理失败"],
+      "required_sections": []
+    },
+    {
+      "id": "recommend_powerbank",
+      "category": "single_agent",
+      "query": "200元以内的充电宝有什么推荐？出差通勤用",
+      "expected_intents": ["recommend"],
+      "expected_agents": ["RecommendationAssistant"],
+      "required_keyword_groups": [
+        ["倍思", "罗马仕", "小米"],
+        ["129", "79", "149"]
+      ],
+      "forbidden_keywords": ["暂不支持", "处理失败"],
+      "required_sections": []
+    },
+    {
+      "id": "price_compare_powerbank",
+      "category": "single_agent",
+      "query": "帮我比一下200元以内的充电宝，哪个性价比最高",
+      "expected_intents": ["order"],
+      "expected_agents": ["OrderAssistant"],
+      "required_keyword_groups": [
+        ["倍思", "罗马仕", "小米"],
+        ["79", "129"]
+      ],
+      "forbidden_keywords": ["暂不支持", "处理失败", "已为您下单"],
+      "required_sections": []
+    },
+    {
+      "id": "order_create_with_coupon",
+      "category": "write_action",
+      "query": "帮我下单购买 倍思 20000mAh 快充充电宝 1件，使用优惠券 NEW10",
+      "expected_intents": ["order"],
+      "expected_agents": ["OrderAssistant"],
+      "required_keywords": ["NEW10"],
+      "required_keyword_groups": [
+        ["订单", "订单号"],
+        ["119", "129"]
+      ],
+      "required_patterns": ["EC\\d{6,}"],
+      "forbidden_keywords": ["库存不足", "未找到该商品"],
+      "required_sections": []
+    },
+    {
+      "id": "logistics_in_transit",
+      "category": "single_agent",
+      "query": "帮我查下订单 EC20261030002 的物流到哪了",
+      "expected_intents": ["logistics"],
+      "expected_agents": ["LogisticsAssistant"],
+      "required_keywords": ["EC20261030002"],
+      "required_keyword_groups": [
+        ["运输中", "在途", "派送", "已发货"],
+        ["顺丰", "SF"]
+      ],
+      "forbidden_keywords": ["暂不支持", "未查到"],
+      "required_sections": []
+    },
+    {
+      "id": "aftersale_eligibility",
+      "category": "single_agent",
+      "query": "订单 EC20261030003 还能退货吗？",
+      "expected_intents": ["after_sale"],
+      "expected_agents": ["AfterSaleAssistant"],
+      "required_keywords": ["EC20261030003"],
+      "required_keyword_groups": [
+        ["可以", "能退", "支持退", "符合"],
+        ["天", "截止"]
+      ],
+      "forbidden_keywords": ["暂不支持", "未查到该订单"],
+      "required_sections": []
+    },
+    {
+      "id": "aftersale_create_ticket",
+      "category": "write_action",
+      "query": "帮我退掉订单 EC20261030001，原因是不合适",
+      "expected_intents": ["after_sale"],
+      "expected_agents": ["AfterSaleAssistant"],
+      "required_keyword_groups": [
+        ["工单", "售后单"]
+      ],
+      "required_patterns": ["AS\\d{6,}"],
+      "forbidden_keywords": ["暂不支持"],
+      "required_sections": []
+    },
+    {
+      "id": "copywriting_product_note",
+      "category": "hierarchical_agent",
+      "query": "帮我写一篇 声海 X1 真无线蓝牙耳机 的开箱种草笔记，学生党用",
+      "expected_intents": ["copywriting"],
+      "expected_agents": ["CopywritingAssistant"],
+      "required_keyword_groups": [
+        ["299"],
+        ["399", "原价"]
+      ],
+      "required_patterns": ["!\\[[^\\]]*\\]\\(https?://"],
+      "required_sections": [
+        "【标题备选】",
+        "【正文】",
+        "【商品信息】",
+        "【商品实拍】",
+        "【配图建议】",
+        "【标签】",
+        "【数据说明】"
+      ],
+      "grounding_keyword_groups": [
+        ["299"],
+        ["声海 X1", "声海X1"]
+      ],
+      "forbidden_keywords": ["作为AI", "根据数据", "工具显示"],
+      "required_sections_note": "7 段固定格式，含系统检索的真实商品图"
+    },
+    {
+      "id": "composite_logistics_aftersale",
+      "category": "multi_agent",
+      "query": "帮我查下订单 EC20261030001 发货没，没发就帮我退掉",
+      "expected_intents": ["logistics", "after_sale"],
+      "expected_agents": ["LogisticsAssistant", "AfterSaleAssistant"],
+      "required_keyword_groups": [
+        ["待发货", "未发货", "已发货"],
+        ["工单", "退货", "退款"]
+      ],
+      "forbidden_keywords": ["暂不支持", "处理失败"],
+      "required_sections": []
+    },
+    {
+      "id": "out_of_scope",
+      "category": "boundary",
+      "query": "帮我写一段快速排序的代码",
+      "expected_intents": ["out_of_scope"],
+      "expected_agents": [],
+      "required_keyword_groups": [
+        ["电商", "购物", "商品", "导购", "超", "无法", "不支持"]
+      ],
+      "forbidden_keywords": ["处理失败"],
+      "required_sections": []
+    }
+  ]
+}

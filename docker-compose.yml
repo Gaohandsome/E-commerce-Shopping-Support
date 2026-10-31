@@ -1,0 +1,338 @@
+version: '3.8'
+
+services:
+  # ==================== API 主服务 ====================
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-api
+    ports:
+      - "8085:8085"
+    environment:
+      # 大模型配置
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - LLM_MODEL=${LLM_MODEL:-qwen-plus}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+      - LLM_STREAMING=${LLM_STREAMING:-True}
+      - LLM_ENABLE_THINKING=${LLM_ENABLE_THINKING:-False}
+      # MySQL 数据库配置
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      # Milvus 向量数据库配置
+      - MILVUS_HOST=${MILVUS_HOST:-host.docker.internal}
+      - MILVUS_PORT=${MILVUS_PORT:-19530}
+      # Docker 环境标识
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      # A2A 服务器地址（Docker 网络中使用服务名称）
+      - RECOMMEND_A2A_URL=http://recommend-a2a:5005
+      - ORDER_A2A_URL=http://order-a2a:5006
+      - LOGISTICS_A2A_URL=http://logistics-a2a:5007
+      - COPYWRITING_A2A_URL=http://copywriting-a2a:5009
+      - AFTERSALE_A2A_URL=http://aftersale-a2a:5008
+    depends_on:
+      - recommend-a2a
+      - order-a2a
+      - logistics-a2a
+      - aftersale-a2a
+      - copywriting-a2a
+      - product-mcp
+      - recommend-mcp
+      - logistics-mcp
+      - aftersale-mcp
+    command: ["python", "api_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== A2A 导购推荐服务器（5005） ====================
+  recommend-a2a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-recommend-a2a
+    ports:
+      - "5005:5005"
+    environment:
+      # 大模型配置
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - LLM_MODEL=${LLM_MODEL:-qwen-plus}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+      - LLM_STREAMING=${LLM_STREAMING:-True}
+      - LLM_ENABLE_THINKING=${LLM_ENABLE_THINKING:-False}
+      # MySQL 数据库配置
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      # Milvus 向量数据库配置
+      - MILVUS_HOST=${MILVUS_HOST:-host.docker.internal}
+      - MILVUS_PORT=${MILVUS_PORT:-19530}
+      # Docker 环境标识
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      # 商品语义推荐 MCP 地址
+      - RECOMMEND_MCP_URL=http://recommend-mcp:8002/mcp
+    depends_on:
+      - recommend-mcp
+    command: ["python", "a2a_server/recommendation_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== A2A 订单服务器（5006） ====================
+  order-a2a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-order-a2a
+    ports:
+      - "5006:5006"
+    environment:
+      # 大模型配置
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - LLM_MODEL=${LLM_MODEL:-qwen-plus}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+      - LLM_STREAMING=${LLM_STREAMING:-True}
+      - LLM_ENABLE_THINKING=${LLM_ENABLE_THINKING:-False}
+      # MySQL 数据库配置
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      # Docker 环境标识
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      # 商品/订单 MCP 地址
+      - PRODUCT_MCP_URL=http://product-mcp:8001/mcp
+    depends_on:
+      - product-mcp
+    command: ["python", "a2a_server/order_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== A2A 物流服务器（5007） ====================
+  logistics-a2a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-logistics-a2a
+    ports:
+      - "5007:5007"
+    environment:
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - LLM_MODEL=${LLM_MODEL:-qwen-plus}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+      - LLM_STREAMING=${LLM_STREAMING:-True}
+      - LLM_ENABLE_THINKING=${LLM_ENABLE_THINKING:-False}
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      - LOGISTICS_MCP_URL=http://logistics-mcp:8003/mcp
+    depends_on:
+      - logistics-mcp
+    command: ["python", "a2a_server/logistics_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== A2A 售后服务器（5008） ====================
+  aftersale-a2a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-aftersale-a2a
+    ports:
+      - "5008:5008"
+    environment:
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - LLM_MODEL=${LLM_MODEL:-qwen-plus}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+      - LLM_STREAMING=${LLM_STREAMING:-True}
+      - LLM_ENABLE_THINKING=${LLM_ENABLE_THINKING:-False}
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      - AFTERSALE_MCP_URL=http://aftersale-mcp:8005/mcp
+    depends_on:
+      - aftersale-mcp
+    command: ["python", "a2a_server/aftersale_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== A2A 文案（种草）服务器（5009） ====================
+  # 文案代理会作为 A2A 客户端继续调用导购、订单等代理收集真实素材
+  copywriting-a2a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-copywriting-a2a
+    ports:
+      - "5009:5009"
+    environment:
+      # 大模型配置
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - LLM_MODEL=${LLM_MODEL:-qwen-plus}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.1}
+      - LLM_STREAMING=${LLM_STREAMING:-True}
+      - LLM_ENABLE_THINKING=${LLM_ENABLE_THINKING:-False}
+      # Docker 环境标识
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      # 下游 A2A 代理地址（阶段3会进一步充实种草逻辑）
+      - RECOMMEND_A2A_URL=http://recommend-a2a:5005
+      - ORDER_A2A_URL=http://order-a2a:5006
+      - LOGISTICS_A2A_URL=http://logistics-a2a:5007
+      - AFTERSALE_A2A_URL=http://aftersale-a2a:5008
+      # 商品实拍图 MCP
+      - IMAGE_MCP_URL=http://image-mcp:8004/mcp
+      - IMAGE_PROVIDER_ORDER=${IMAGE_PROVIDER_ORDER:-so360,bing}
+    depends_on:
+      - recommend-a2a
+      - order-a2a
+      - image-mcp
+    command: ["python", "a2a_server/copywriting_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== MCP 商品实拍图服务器（8004） ====================
+  # 文案代理写完后调用它检索真实商品实拍图
+  image-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-image-mcp
+    ports:
+      - "8004:8004"
+    environment:
+      # 图源顺序：有 Key 时可改成 unsplash,pexels,pixabay；能访问开源图库时用 openverse,wikimedia
+      - IMAGE_PROVIDER_ORDER=${IMAGE_PROVIDER_ORDER:-so360,bing}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY:-}
+      - PEXELS_API_KEY=${PEXELS_API_KEY:-}
+      - PIXABAY_API_KEY=${PIXABAY_API_KEY:-}
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+    command: ["python", "mcp_server/mcp_image_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== MCP 商品/订单服务器（8001） ====================
+  product-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-product-mcp
+    ports:
+      - "8001:8001"
+    environment:
+      # MySQL 数据库配置
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      # Docker 环境标识
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+    command: ["python", "mcp_server/mcp_product_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== MCP 物流服务器（8003） ====================
+  logistics-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-logistics-mcp
+    ports:
+      - "8003:8003"
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+    command: ["python", "mcp_server/mcp_logistics_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== MCP 售后服务器（8005） ====================
+  aftersale-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-aftersale-mcp
+    ports:
+      - "8005:8005"
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+    command: ["python", "mcp_server/mcp_aftersale_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+  # ==================== MCP 商品语义推荐服务器（8002） ====================
+  recommend-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartvoyage-recommend-mcp
+    ports:
+      - "8002:8002"
+    environment:
+      # 大模型配置（Embedding 使用 API_KEY）
+      - API_KEY=${API_KEY}
+      # MySQL 数据库配置
+      - MYSQL_HOST=${MYSQL_HOST:-host.docker.internal}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-12345678}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-travel_rag}
+      # Milvus 向量数据库配置
+      - MILVUS_HOST=${MILVUS_HOST:-host.docker.internal}
+      - MILVUS_PORT=${MILVUS_PORT:-19530}
+      # Docker 环境标识
+      - RUNNING_IN_DOCKER=true
+      - PYTHONUNBUFFERED=1
+    command: ["python", "mcp_server/mcp_recommendation_server.py"]
+    networks:
+      - smartvoyage-network
+    restart: unless-stopped
+
+networks:
+  smartvoyage-network:
+    driver: bridge

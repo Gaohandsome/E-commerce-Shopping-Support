@@ -1,0 +1,39 @@
+# ===== 环境与密钥 =====
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ===== 虚拟环境 / 依赖缓存 =====
+.venv/
+venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+build/
+dist/
+*.egg-info/
+
+# ===== 运行日志与临时产物 =====
+logs/
+*.log
+*.out
+tests/eval_results.json
+
+# ===== 容器/数据库数据卷（体积大且含本地数据） =====
+docker/mysql_data/
+docker/volumes*/
+volumes*/
+
+# ===== 编辑器 / 系统 =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.git/
+
+# ===== 本地工作区元数据 =====
+.workbuddy/
