@@ -258,7 +258,8 @@ class TestRecommendationMCPConfig(unittest.TestCase):
     def test_constants(self):
         from mcp_server import mcp_recommendation_server as m
         self.assertEqual(m.COLLECTION_NAME, "products")
-        self.assertEqual(m.DB_NAME, "default")
+        # 电商业务使用独立库，避免与旅游期集合混用
+        self.assertEqual(m.DB_NAME, "ecommerce")
         self.assertEqual(m.EMBEDDING_DIM, 1024)
 
 
