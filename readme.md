@@ -77,7 +77,7 @@ MySQL 库名沿用 `travel_rag`：
 | `after_sale_requests`                                     | 售后工单                               |
 | `user_profiles` / `query_history` / `short_term_messages` | 对话记忆                               |
 
-Milvus 集合 `products`（默认库）：`product_id/name/category/brand/price/original_price/stock/rating/sales_volume/description/specs/embedding`。
+Milvus 使用独立数据库 `ecommerce`、集合 `products`：`product_id/name/category/brand/price/original_price/stock/rating/sales_volume/description/specs/embedding`。库名与集合名由 `MILVUS_DB_NAME` / `MILVUS_COLLECTION` 控制，`init_product_rag.py` 会在库不存在时自动创建。
 
 ### 初始化
 
@@ -89,7 +89,7 @@ mysql -uroot -p < sql/demo_product_data.sql
 mysql -uroot -p < sql/create_logistics_aftersale_tables.sql
 # 3) 记忆表
 mysql -uroot -p < sql/create_memory_tables.sql
-# 4) 商品向量库（Qwen Embedding + Milvus）
+# 4) 商品向量库（Qwen Embedding + Milvus，自动建 ecommerce 库与 products 集合）
 python sql/init_product_rag.py
 ```
 
