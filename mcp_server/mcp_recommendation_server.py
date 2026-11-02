@@ -28,8 +28,9 @@ conf = Config()
 # ==================== Milvus + Embedding 配置 ====================
 MILVUS_HOST = conf.milvus_host
 MILVUS_PORT = conf.milvus_port
-DB_NAME = "default"
-COLLECTION_NAME = "products"
+# 电商业务独立库（与 sql/init_product_rag.py 保持一致）
+DB_NAME = os.getenv("MILVUS_DB_NAME", "ecommerce")
+COLLECTION_NAME = os.getenv("MILVUS_COLLECTION", "products")
 EMBEDDING_URL = "https://ws-n9otlvquyp7rga26.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/embeddings"
 EMBEDDING_DIM = 1024
 
@@ -62,7 +63,8 @@ def search_products_in_milvus(query_text: str, category: str = None, limit: int 
     返回值：
         list: 匹配商品列表（含相似度）
     """
-    connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT)
+    connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT,
+                        db_name=DB_NAME)
     collection = Collection(COLLECTION_NAME)
     collection.load()
 

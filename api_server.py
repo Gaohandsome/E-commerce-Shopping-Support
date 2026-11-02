@@ -1,5 +1,5 @@
 """
-需求：SmartVoyage FastAPI后端服务器，提供REST API接口
+需求：ShopMate FastAPI后端服务器，提供REST API接口
 """
 import json
 import os
@@ -16,7 +16,7 @@ import uvicorn
 
 from chat_service import ChatService
 
-app = FastAPI(title="SmartVoyage API", description="基于A2A的旅行智能助手")
+app = FastAPI(title="ShopMate API", description="基于A2A的电商智能导购与售后助手")
 
 # 全局服务实例
 chat_service = ChatService()

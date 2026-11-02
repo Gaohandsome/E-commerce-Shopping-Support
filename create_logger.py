@@ -1,5 +1,5 @@
 """
-需求：为SmartVoyage项目创建和配置日志记录器
+需求：为ShopMate项目创建和配置日志记录器
 思路步骤：
 1. 导入必要的模块（logging、os、Config）
 2. 定义setup_logger函数配置日志记录器

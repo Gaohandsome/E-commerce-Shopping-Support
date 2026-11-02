@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-api
+    container_name: shopmate-api
     ports:
       - "8085:8085"
     environment:
@@ -47,7 +47,7 @@ services:
       - aftersale-mcp
     command: ["python", "api_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== A2A 导购推荐服务器（5005） ====================
@@ -55,7 +55,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-recommend-a2a
+    container_name: shopmate-recommend-a2a
     ports:
       - "5005:5005"
     environment:
@@ -84,7 +84,7 @@ services:
       - recommend-mcp
     command: ["python", "a2a_server/recommendation_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== A2A 订单服务器（5006） ====================
@@ -92,7 +92,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-order-a2a
+    container_name: shopmate-order-a2a
     ports:
       - "5006:5006"
     environment:
@@ -118,7 +118,7 @@ services:
       - product-mcp
     command: ["python", "a2a_server/order_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== A2A 物流服务器（5007） ====================
@@ -126,7 +126,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-logistics-a2a
+    container_name: shopmate-logistics-a2a
     ports:
       - "5007:5007"
     environment:
@@ -148,7 +148,7 @@ services:
       - logistics-mcp
     command: ["python", "a2a_server/logistics_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== A2A 售后服务器（5008） ====================
@@ -156,7 +156,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-aftersale-a2a
+    container_name: shopmate-aftersale-a2a
     ports:
       - "5008:5008"
     environment:
@@ -178,7 +178,7 @@ services:
       - aftersale-mcp
     command: ["python", "a2a_server/aftersale_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== A2A 文案（种草）服务器（5009） ====================
@@ -187,7 +187,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-copywriting-a2a
+    container_name: shopmate-copywriting-a2a
     ports:
       - "5009:5009"
     environment:
@@ -215,7 +215,7 @@ services:
       - image-mcp
     command: ["python", "a2a_server/copywriting_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== MCP 商品实拍图服务器（8004） ====================
@@ -224,7 +224,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-image-mcp
+    container_name: shopmate-image-mcp
     ports:
       - "8004:8004"
     environment:
@@ -237,7 +237,7 @@ services:
       - PYTHONUNBUFFERED=1
     command: ["python", "mcp_server/mcp_image_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== MCP 商品/订单服务器（8001） ====================
@@ -245,7 +245,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-product-mcp
+    container_name: shopmate-product-mcp
     ports:
       - "8001:8001"
     environment:
@@ -260,7 +260,7 @@ services:
       - PYTHONUNBUFFERED=1
     command: ["python", "mcp_server/mcp_product_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== MCP 物流服务器（8003） ====================
@@ -268,7 +268,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-logistics-mcp
+    container_name: shopmate-logistics-mcp
     ports:
       - "8003:8003"
     environment:
@@ -281,7 +281,7 @@ services:
       - PYTHONUNBUFFERED=1
     command: ["python", "mcp_server/mcp_logistics_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== MCP 售后服务器（8005） ====================
@@ -289,7 +289,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-aftersale-mcp
+    container_name: shopmate-aftersale-mcp
     ports:
       - "8005:8005"
     environment:
@@ -302,7 +302,7 @@ services:
       - PYTHONUNBUFFERED=1
     command: ["python", "mcp_server/mcp_aftersale_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
   # ==================== MCP 商品语义推荐服务器（8002） ====================
@@ -310,7 +310,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: smartvoyage-recommend-mcp
+    container_name: shopmate-recommend-mcp
     ports:
       - "8002:8002"
     environment:
@@ -330,9 +330,9 @@ services:
       - PYTHONUNBUFFERED=1
     command: ["python", "mcp_server/mcp_recommendation_server.py"]
     networks:
-      - smartvoyage-network
+      - shopmate-network
     restart: unless-stopped
 
 networks:
-  smartvoyage-network:
+  shopmate-network:
     driver: bridge

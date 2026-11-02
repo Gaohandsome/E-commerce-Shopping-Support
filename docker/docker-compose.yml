@@ -75,4 +75,4 @@ services:
 
 networks:
   default:
-    name: smartvoyage-network
+    name: shopmate-network

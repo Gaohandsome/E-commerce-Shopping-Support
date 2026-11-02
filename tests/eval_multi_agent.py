@@ -1,5 +1,5 @@
 """
-SmartVoyage 多智能体评估脚本
+ShopMate 多智能体评估脚本
 
 评估目标：
     用一份很小的数据集，验证「意图识别 → 代理路由 → 多代理协作 → 最终答案」整条链路，
@@ -402,7 +402,7 @@ def print_summary(summary):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="SmartVoyage 多智能体评估")
+    parser = argparse.ArgumentParser(description="ShopMate 多智能体评估")
     parser.add_argument("--case", action="append", default=None, help="只跑指定用例，可重复")
     parser.add_argument("--limit", type=int, default=None, help="最多跑多少条用例")
     parser.add_argument("--timeout", type=float, default=420, help="单条用例超时（秒）")

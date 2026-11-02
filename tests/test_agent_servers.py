@@ -9,7 +9,7 @@ Agent 服务器测试模块（电商版）
      此处只做无需外部依赖的卡片/实例化校验，保证 pytest 轻量可重复。
 
 运行方式：
-    cd SmartVoyage
+    cd ShopMate
     python -m pytest tests/test_agent_servers.py -v
 """
 
@@ -17,7 +17,7 @@ import unittest
 import sys
 import os
 
-# 确保能导入 SmartVoyage 模块
+# 确保能导入 ShopMate 模块
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 

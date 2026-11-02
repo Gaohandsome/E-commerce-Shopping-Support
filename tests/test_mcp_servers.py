@@ -7,7 +7,7 @@ MCP 服务器测试模块（电商版）
 3. 推荐 MCP 配置测试（纯导入，不依赖 Milvus / Embedding 网络）
 
 运行方式：
-    cd SmartVoyage
+    cd ShopMate
     python -m pytest tests/test_mcp_servers.py -v
 前置：先执行 sql/create_ecommerce_tables.sql 与 sql/demo_product_data.sql
 """
@@ -19,7 +19,7 @@ import os
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-# 确保能导入 SmartVoyage 模块
+# 确保能导入 ShopMate 模块
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 

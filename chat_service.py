@@ -1,8 +1,8 @@
 """
-需求：SmartVoyage核心对话服务，供CLI和API共同调用
+需求：ShopMate核心对话服务，供CLI和API共同调用
 
 架构说明：
-    本模块实现了智能旅游助手的核心对话流程，采用优化的 Planning + ReAct 架构：
+    本模块实现了电商导购与售后助手的核心对话流程，采用优化的 Planning + ReAct 架构：
     1. 意图识别（intent_agent）：分析用户输入，识别出用户想做什么（查天气/查机票/查景点等）
     2. 启发式路由（_should_skip_planning）：快速判断任务复杂度
        - 单意图或独立多意图：跳过规划，直接执行（省去 1 次 LLM 调用）
@@ -51,7 +51,7 @@ from langchain_openai import ChatOpenAI  # LangChain 的大模型接口，兼容
 # 导入项目内部模块
 from config import Config  # 配置模块（模型地址、API Key、意图映射等）
 from create_logger import logger  # 日志模块，用于记录运行日志
-from main_prompts import SmartVoyagePrompts  # Prompt 模板管理
+from main_prompts import ShopMatePrompts  # Prompt 模板管理
 from memory import ConversationMemory  # 记忆管理（短期记忆、用户偏好、任务上下文）
 from config import env  # 环境变量，用于获取数据库配置
 
@@ -60,7 +60,7 @@ conf = Config()  # 全局配置实例，包含模型参数、意图映射等
 
 class ChatService:
     """
-    SmartVoyage 对话服务类
+    ShopMate 对话服务类
 
     这是整个系统的核心类，负责处理用户的所有输入并生成回复。
     内部流程为：意图识别 → 任务规划 → 执行（直接/ReAct循环）→ 返回回复
@@ -136,10 +136,10 @@ class ChatService:
 
         返回值：
             str: 格式化的工具列表文本，例如：
-                - Agent: WeatherQueryAssistant, 查询天气信息
-                  Skill: 天气查询: 根据城市查询天气
-                - Agent: TicketQueryAssistant, 查询票务信息
-                  Skill: 票务查询: 查询机票、火车票等
+                - Agent: RecommendationAssistant, 电商导购推荐
+                  Skill: recommend products: 根据需求语义检索并推荐商品
+                - Agent: OrderAssistant, 比价与下单
+                  Skill: place order: 确认商品与优惠券后下单
         """
         try:
             # 调用 get_agent_cards() 获取所有在线 agent 的卡片信息
@@ -220,12 +220,11 @@ class ChatService:
         2. 大模型返回 JSON，包含识别到的意图列表、改写后的查询、追问消息
 
         支持的意图类型：
-            - weather: 天气查询
-            - flight: 机票查询
-            - train: 高铁/火车票查询
-            - concert: 演唱会票查询
-            - order: 票务预定
-            - attraction: 景点推荐
+            - recommend: 导购推荐
+            - order: 比价 / 优惠券 / 下单
+            - logistics: 物流查询
+            - after_sale: 售后退换货
+            - copywriting: 小红书种草文案
             - out_of_scope: 超出系统能力范围
 
         参数：
@@ -238,7 +237,7 @@ class ChatService:
                 - follow_up_message (str): 追问消息，当意图不明确时用于追问用户
         """
         # 组装 Prompt 模板 + 大模型，形成完整的处理链
-        chain = SmartVoyagePrompts.intent_prompt() | self.llm
+        chain = ShopMatePrompts.intent_prompt() | self.llm
 
         # 获取当前日期，注入到 prompt 中（用户可能说"明天"、"后天"等相对时间）
         current_date = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d')
@@ -316,7 +315,7 @@ class ChatService:
                 - 复杂任务：{"need_plan": true, "reason": "多意图需要分步执行",
                             "steps": [{"step": 1, "action": "...", "intent": "weather", "depends_on": 0}, ...]}
         """
-        chain = SmartVoyagePrompts.planning_prompt() | self.llm
+        chain = ShopMatePrompts.planning_prompt() | self.llm
 
         planning_response = chain.invoke({
             "conversation_history": self.memory.get_short_term_text(),
@@ -415,10 +414,10 @@ class ChatService:
 
             # 根据代理类型，使用对应的总结 prompt 处理结果
             if agent_name == "RecommendationAssistant":
-                chain = SmartVoyagePrompts.summarize_product_prompt() | self.llm
+                chain = ShopMatePrompts.summarize_product_prompt() | self.llm
                 return chain.invoke({"query": query_str, "raw_response": agent_result}).content.strip()
             elif agent_name == "OrderAssistant":
-                chain = SmartVoyagePrompts.summarize_order_prompt() | self.llm
+                chain = ShopMatePrompts.summarize_order_prompt() | self.llm
                 return chain.invoke({"query": query_str, "raw_response": agent_result}).content.strip()
             else:
                 # 其他代理（物流/售后/种草）直接返回原始结果
@@ -512,7 +511,7 @@ class ChatService:
         # ========== 所有步骤完成后的最终汇总 ==========
         if len(step_results) > 1:
             # 多个步骤：使用专门的汇总 prompt，将各步骤结果整合成一条连贯回复
-            summary_chain = SmartVoyagePrompts.react_summary_prompt() | self.llm
+            summary_chain = ShopMatePrompts.react_summary_prompt() | self.llm
             all_obs = "\n".join([f"步骤{s['step']} ({s['description']}): {s['result']}" for s in step_results])
             final_response = summary_chain.invoke({
                 "query": self.messages[-1]["content"] if self.messages else "",
@@ -818,9 +817,9 @@ class ChatService:
                     agent_result = f"{agent_name} 服务暂时不可用：{str(e)}"
 
                 if agent_name == "RecommendationAssistant":
-                    chain = SmartVoyagePrompts.summarize_product_prompt() | self.llm
+                    chain = ShopMatePrompts.summarize_product_prompt() | self.llm
                 elif agent_name == "OrderAssistant":
-                    chain = SmartVoyagePrompts.summarize_order_prompt() | self.llm
+                    chain = ShopMatePrompts.summarize_order_prompt() | self.llm
                 else:
                     yield agent_result
                     return
@@ -870,7 +869,7 @@ class ChatService:
                 logger.info(f"ReAct 步骤 {step_num} 结果: {result[:100]}...")
 
         if len(step_results) > 1:
-            summary_chain = SmartVoyagePrompts.react_summary_prompt() | self.llm
+            summary_chain = ShopMatePrompts.react_summary_prompt() | self.llm
             all_obs = "\n".join([f"步骤{s['step']} ({s['description']}): {s['result']}" for s in step_results])
             async for chunk in summary_chain.astream({
                 "query": self.messages[-1]["content"] if self.messages else "",

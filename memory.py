@@ -1,5 +1,5 @@
 """
-需求：实现SmartVoyage的记忆管理模块，包括短期对话记忆、用户偏好记忆和当前任务上下文
+需求：实现ShopMate的记忆管理模块，包括短期对话记忆、用户偏好记忆和当前任务上下文
 支持 MySQL 数据库持久化，服务重启后自动恢复记忆数据
 """
 from datetime import datetime

@@ -11,7 +11,7 @@
 from langchain_core.prompts import ChatPromptTemplate  # LangChain 的聊天提示模板类
 
 
-class SmartVoyagePrompts:
+class ShopMatePrompts:
     """
     电商导购与售后客服 提示模板管理类
     """
@@ -218,4 +218,4 @@ Action Input: 工具所需输入
 
 
 if __name__ == '__main__':
-    print(SmartVoyagePrompts.intent_prompt())
+    print(ShopMatePrompts.intent_prompt())

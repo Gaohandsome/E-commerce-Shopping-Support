@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#eef7ff">
-<title>SmartVoyage · A2A 旅行智能助手</title>
+<title>ShopMate · A2A 电商智能导购与售后助手</title>
 <style>
     :root {
         --bg: #f2f8ff;
@@ -1365,11 +1365,11 @@
 <header class="topbar">
     <div class="brand">
         <div class="brand-mark">
-            <svg class="icon"><use href="#i-plane"></use></svg>
+            <svg class="icon"><use href="#i-bot"></use></svg>
         </div>
         <div class="brand-text">
-            <h1>SmartVoyage</h1>
-            <span>基于 A2A 的旅行智能助手</span>
+            <h1>ShopMate</h1>
+            <span>基于 A2A 的电商导购与售后助手</span>
         </div>
     </div>
     <div class="topbar-actions">
@@ -1425,8 +1425,8 @@
     <section class="chat-panel">
         <div class="chat-top">
             <div>
-                <span class="eyebrow">SmartVoyage Agent Network</span>
-                <h2>旅行对话</h2>
+                <span class="eyebrow">ShopMate Agent Network</span>
+                <h2>购物对话</h2>
             </div>
             <span class="live-badge"><i></i>实时协作</span>
         </div>
@@ -1436,8 +1436,8 @@
                 <div class="hero-top">
                     <div>
                         <span class="hero-eyebrow"><i></i>多智能体 · 实时协作</span>
-                        <h2>让每一次出发<br><span class="grad">都更从容</span></h2>
-                        <p>天气、票务、租车、保险与行程编排，一句话交给 SmartVoyage。多个智能体会自动分工，还能把真实交通与花费写成一篇小红书种草文。</p>
+                        <h2>挑得明白<br><span class="grad">买得省心</span></h2>
+                        <p>商品推荐、比价、下单核券、物流查询、退换货与种草文案，一句话交给 ShopMate。多个智能体自动分工，还能把真实价格与卖点写成一篇小红书笔记。</p>
                         <div class="hero-hint">
                             <kbd>Enter</kbd> 发送
                             <span style="color:#c3d2e0;">·</span>
@@ -1448,11 +1448,11 @@
                         <div class="orbit">
                             <span class="orbit-ring"></span>
                             <span class="orbit-ring inner"></span>
-                            <span class="orbit-chip c1"><svg class="icon"><use href="#i-sun"></use></svg></span>
+                            <span class="orbit-chip c1"><svg class="icon"><use href="#i-sparkles"></use></svg></span>
                             <span class="orbit-chip c2"><svg class="icon"><use href="#i-ticket"></use></svg></span>
                             <span class="orbit-chip c3"><svg class="icon"><use href="#i-luggage"></use></svg></span>
                             <span class="orbit-chip c4"><svg class="icon"><use href="#i-pen"></use></svg></span>
-                            <div class="orbit-core"><svg class="icon"><use href="#i-plane"></use></svg></div>
+                            <div class="orbit-core"><svg class="icon"><use href="#i-bot"></use></svg></div>
                         </div>
                     </div>
                 </div>
@@ -1477,7 +1477,7 @@
                 <button class="composer-icon" id="toolBtn" aria-label="打开快捷工具" aria-expanded="false">
                     <svg class="icon"><use href="#i-grid"></use></svg>
                 </button>
-                <textarea id="chatInput" rows="1" placeholder="问问天气、车票、演唱会，或让我安排一段行程…" autocomplete="off"></textarea>
+                <textarea id="chatInput" rows="1" placeholder="想买点什么？推荐、比价、下单、查物流、退换货都可以问我…" autocomplete="off"></textarea>
                 <button class="send-btn" id="sendBtn" aria-label="发送" disabled>
                     <svg class="icon icon-send"><use href="#i-send"></use></svg>
                     <svg class="icon icon-stop"><use href="#i-stop"></use></svg>
@@ -1485,7 +1485,7 @@
             </div>
             <div class="composer-meta">
                 <span>Enter 发送 · Shift + Enter 换行</span>
-                <span class="meta-right">SmartVoyage · A2A</span>
+                <span class="meta-right">ShopMate · A2A</span>
             </div>
         </div>
     </section>
@@ -1540,19 +1540,17 @@
 
     // ---------- 快捷工具 ----------
     const TOOLS = [
-        { icon: 'i-sun', label: '天气预报', desc: '未来天气与出行建议', prompt: '明天北京天气怎么样？' },
-        { icon: 'i-train', label: '火车票', desc: '车次、余票与价格', prompt: '2026年11月1日深圳到成都的火车票，最便宜的是哪一趟？' },
-        { icon: 'i-plane', label: '机票', desc: '航班比价与舱位', prompt: '2026年5月1日北京到成都最便宜的机票是哪一趟？' },
-        { icon: 'i-mic', label: '演唱会', desc: '场次、场馆与票档', prompt: '2026年11月14日深圳有什么演唱会？薛之谦的票价是多少？' },
-        { icon: 'i-car', label: '租车', desc: '车型与日租价格', prompt: '2026年5月1日在成都租车，哪家最便宜？' },
-        { icon: 'i-shield', label: '旅行保险', desc: '保障范围与价格', prompt: '有没有包含航班延误的旅行保险？最便宜的是哪一款？' },
-        { icon: 'i-map', label: '旅游团', desc: '目的地跟团推荐', prompt: '我想去成都旅游，有什么推荐的旅游团？' },
-        { icon: 'i-sparkles', label: '完整行程', desc: '一站式编排行程', prompt: '安排一下2026年五一从北京到成都的行程：5月1日出发，看邓紫棋演唱会，含保险和租车，5月5日返程。' },
+        { icon: 'i-sparkles', label: '商品推荐', desc: '按预算与场景挑商品', prompt: '推荐一款300元以内的降噪蓝牙耳机' },
+        { icon: 'i-grid', label: '比价', desc: '同品类横向对比', prompt: '帮我比一下200元以内的充电宝，哪个最划算？' },
+        { icon: 'i-ticket', label: '下单 / 优惠券', desc: '试算优惠并下单', prompt: '用FULL200券下单买1件声海X1蓝牙耳机' },
+        { icon: 'i-luggage', label: '我的订单', desc: '最近订单与状态', prompt: '我最近有哪些订单？' },
+        { icon: 'i-map', label: '查物流', desc: '承运商与物流轨迹', prompt: '查一下订单EC20261030002的物流到哪了' },
+        { icon: 'i-shield', label: '退换货', desc: '规则判断与建工单', prompt: 'EC20261030003能退货吗？' },
         {
             icon: 'i-pen',
             label: '小红书种草文案',
-            desc: '真实交通与花费 · 一键成文',
-            prompt: '帮我写一篇小红书种草文：2026年11月1日从深圳出发去成都，玩4天，预算3000元左右，喜欢美食和citywalk，坐高铁或飞机都行，要真实一点，带花费清单。',
+            desc: '真实价格与卖点 · 一键成文',
+            prompt: '帮我写一篇声海X1真无线蓝牙耳机的小红书开箱种草笔记，目标人群是学生党',
             featured: true
         }
     ];

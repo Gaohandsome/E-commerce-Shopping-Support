@@ -2584,7 +2584,7 @@ wheels = [
 ]
 
 [[package]]
-name = "smartvoyage-xb"
+name = "shopmate"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

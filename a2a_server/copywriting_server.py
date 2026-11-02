@@ -2,7 +2,7 @@
 需求：实现基于 A2A 的小红书电商种草（开箱测评）文案服务器
 
 架构说明：
-    本服务器是 SmartVoyage 电商系统中的文案子代理（CopywritingAssistant），
+    本服务器是 ShopMate 电商系统中的文案子代理（CopywritingAssistant），
     运行在独立进程中（127.0.0.1:5009），通过 A2A 协议与主助手通信。
 
     它与其他子代理最大的区别是：它自己会同时作为 A2A 客户端与 MCP 客户端，

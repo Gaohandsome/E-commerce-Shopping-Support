@@ -8,7 +8,7 @@
 
 说明：
 - 与 init_tour_group_rag.py 保持一致的接口与工程化写法（含 Embedding 重试与错误处理）
-- Milvus 连接参数读取自 conf（config.py），库名使用 default，集合名 products
+- Milvus 连接参数读取自 conf（config.py），库名沿用 GY_demo，集合名 products
 """
 
 import json
@@ -17,7 +17,8 @@ import sys
 import time
 import requests
 import mysql.connector
-from pymilvus import connections, Collection, CollectionSchema, FieldSchema, DataType, utility
+from pymilvus import (connections, Collection, CollectionSchema,
+                      FieldSchema, DataType, utility, MilvusClient)
 from dotenv import load_dotenv
 
 # 将项目根目录加入 Python 路径，以便导入配置
@@ -101,9 +102,9 @@ def get_embedding(text: str, max_retry: int = 3) -> list:
 # ==================== Milvus 配置 ====================
 MILVUS_HOST = conf.milvus_host
 MILVUS_PORT = conf.milvus_port
-# 该 Milvus 实例默认库即可（不依赖特定业务库，避免 database not found）
-DB_NAME = "default"
-COLLECTION_NAME = "products"
+# 电商业务使用独立数据库，避免与旅游项目的集合混在一起
+DB_NAME = os.getenv("MILVUS_DB_NAME", "ecommerce")
+COLLECTION_NAME = os.getenv("MILVUS_COLLECTION", "products")
 DIMENSION = 1024  # text-embedding-v3 输出维度
 
 
@@ -143,7 +144,18 @@ def create_product_collection():
     - specs / tags: JSON 字符串
     - embedding: 1024 维向量
     """
-    connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT)
+    # 先连默认库，确认电商业务库是否存在，不存在则创建（Milvus 2.2.9+ 支持多库）
+    # 注意：pymilvus 2.6 的数据库 API 在 MilvusClient 上，utility 里没有
+    client = MilvusClient(uri=f"http://{MILVUS_HOST}:{MILVUS_PORT}", timeout=10)
+    if DB_NAME not in client.list_databases():
+        client.create_database(DB_NAME)
+        print(f"已创建 Milvus 数据库: {DB_NAME}")
+    else:
+        print(f"Milvus 数据库 {DB_NAME} 已存在")
+    client.close()
+
+    connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT,
+                        db_name=DB_NAME, timeout=10)
     print(f"已连接 Milvus: {MILVUS_HOST}:{MILVUS_PORT} (db={DB_NAME})")
 
     # 如果已存在则删除重建（演示数据可重复初始化）
